@@ -8,6 +8,11 @@ if (!REPOS_ROOT) {
   throw new Error('Missing environment variable REPOS_ROOT. Make sure it is set in the .env file')
 }
 
+if (!fs.existsSync(REPOS_ROOT)) {
+  throw new Error('Environment variable REPOS_ROOT does not point to an existing directory. Make sure it is set in the .env file')
+}
+
+
 const STATUS_PENDING = 'pending'
 const STATUS_SUCCESS = 'success'
 const STATUS_ERROR = 'error'
