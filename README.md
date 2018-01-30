@@ -1,6 +1,6 @@
 # jeeves
 
-> a GitHub App built with [probot](https://github.com/probot/probot) that 
+> a GitHub App built with [probot](https://github.com/probot/probot) that does my mundane tasks for me
 
 ## Setup
 
