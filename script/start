@@ -1,5 +1,5 @@
 #!/bin/bash
 cd "$(dirname "$0")/.." || exit 111
 
-"$(npm bin)/probot" run ./index.js &
+FORCE_COLOR=0 "$(npm bin)/probot" run ./index.js 2>&1 >> ./.output.log &
 echo "$!" > ./.pidfile
