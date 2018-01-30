@@ -1,3 +1,5 @@
 #!/bin/bash
 
-"$(npm bin)/nodemon" --exec "LOG_LEVEL=trace npm start" || exit 111
+echo "Note: Prefix with LOG_LEVEL=trace for more debugging"
+
+"$(npm bin)/nodemon" --exec "npm start" || exit 111

@@ -19,10 +19,9 @@ const STATUS_ERROR = 'error'
 
 module.exports = (robot) => {
   // Plugins that we use
-  console.log('Yay, the app was loaded!')
+  robot.log('Yay, the app was loaded!')
 
   robot.on('push', async ({payload, github}) => {
-    console.log('pushed code')
     // Check if the directory is checked out on this machine so we can re-deploy it
 
     // if (`refs/heads/${masterBranchName}` === payload.ref) {
@@ -56,7 +55,7 @@ module.exports = (robot) => {
       }
 
       function execCommand(command) {
-        console.log(`Executing "${command}"`)
+        robot.log(`Executing "${command}"`)
         const args = {
           cwd: repoRoot,
           stdio: [ null, process.stdout, process.stderr]
