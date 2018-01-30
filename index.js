@@ -83,10 +83,11 @@ module.exports = (robot) => {
         execCommand(`./script/setup`)
 
         // If the service is us then add the success prematurely
-        if (repoRoot === path.join(__dirname, '..')) {
+        if (repoRoot === __dirname) {
           await updateStatus(STATUS_SUCCESS, 'Restarting')
           execCommand(`./script/restart`)
         } else {
+          robot.log(`Restarting. Self: "${__dirname}" Repo: "${repoRoot}"`)
           await updateStatus(STATUS_PENDING, 'Restarting')
           execCommand(`./script/restart`)
           await updateStatus(STATUS_SUCCESS, 'Restarted')
