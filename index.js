@@ -42,6 +42,7 @@ module.exports = (robot) => {
     const repoName = payload.repository.name
     const sha = payload.head_commit.id
     const repoRoot = path.join(REPOS_ROOT, repoOwner, repoName)
+    const isDeployingSelf = repoRoot === __dirname // True when we are deploying the Jeeves bot
 
     async function updateStatus (state, description) {
       // GitHub requires that descripitons be <= 140 characters
@@ -71,7 +72,7 @@ module.exports = (robot) => {
     if (fs.existsSync(path.join(REPOS_ROOT, repoOwner, repoName))) {
       try {
         // deploy locally (we are using nodemon to start this whole thing off so it will reboot)
-        await updateStatus(STATUS_PENDING, 'Checking out code')
+        await updateStatus(STATUS_PENDING, 'checking out code')
         // execCommand(`git fetch origin "${sha}"`)
         // execCommand(`git checkout FETCH_HEAD`)
         execCommand(`git checkout ${masterBranchName}`)
@@ -79,21 +80,20 @@ module.exports = (robot) => {
         execCommand(`git checkout "${sha}"`)
 
         // Install any packages
-        await updateStatus(STATUS_PENDING, 'Installing Packages')
+        await updateStatus(STATUS_PENDING, 'installing packages')
         execCommand(`./script/setup`)
 
         // If the service is us then add the success prematurely
-        if (repoRoot === __dirname) {
-          await updateStatus(STATUS_SUCCESS, 'Restarting')
+        if (isDeployingSelf) {
+          await updateStatus(STATUS_SUCCESS, 'restarting self')
           execCommand(`./script/restart`)
         } else {
-          robot.log(`Restarting. Self: "${__dirname}" Repo: "${repoRoot}"`)
-          await updateStatus(STATUS_PENDING, 'Restarting')
+          await updateStatus(STATUS_PENDING, 'restarting')
           execCommand(`./script/restart`)
-          await updateStatus(STATUS_SUCCESS, 'Restarted')
+          await updateStatus(STATUS_SUCCESS, 'restarted')
         }
 
-        await updateStatus(STATUS_SUCCESS, 'Deployed')
+        await updateStatus(STATUS_SUCCESS, 'deployed')
       } catch (err) {
         await updateStatus(STATUS_ERROR, err.message)
       }
