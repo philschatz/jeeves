@@ -41,7 +41,7 @@ module.exports = (robot) => {
     const repoOwner = payload.repository.owner.name
     const repoName = payload.repository.name
     const sha = payload.head_commit.id
-    const repoRoot = `${REPOS_ROOT}/${repoOwner}/${repoName}`
+    const repoRoot = path.join(REPOS_ROOT, repoOwner, repoName)
 
     async function updateStatus (state, description) {
       // GitHub requires that descripitons be <= 140 characters
@@ -82,8 +82,15 @@ module.exports = (robot) => {
         await updateStatus(STATUS_PENDING, 'Installing Packages')
         execCommand(`./script/setup`)
 
-        await updateStatus(STATUS_PENDING, 'Restarting')
-        execCommand(`./script/restart`)
+        // If the service is us then add the success prematurely
+        if (repoRoot === path.join(__dirname, '..')) {
+          await updateStatus(STATUS_SUCCESS, 'Restarting')
+          execCommand(`./script/restart`)
+        } else {
+          await updateStatus(STATUS_PENDING, 'Restarting')
+          execCommand(`./script/restart`)
+          await updateStatus(STATUS_SUCCESS, 'Restarted')
+        }
 
         await updateStatus(STATUS_SUCCESS, 'Deployed')
       } catch (err) {
