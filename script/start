@@ -1,4 +1,5 @@
 #!/bin/bash
 cd "$(dirname "$0")/.." || exit 111
 
-"$(npm bin)/nodemon" --exec "npm start" || exit 111
+"$(npm bin)/probot" run ./index.js &
+echo "$!" > ./.pidfile

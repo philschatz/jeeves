@@ -77,6 +77,9 @@ module.exports = (robot) => {
         updateStatus(STATUS_PENDING, 'Installing Packages')
         execCommand(`./script/setup`)
 
+        updateStatus(STATUS_PENDING, 'Restarting')
+        execCommand(`./script/restart`)
+
         updateStatus(STATUS_SUCCESS, 'Deployed')
       } catch (err) {
         updateStatus(STATUS_ERROR, err.message)

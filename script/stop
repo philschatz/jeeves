@@ -1,0 +1,9 @@
+#!/bin/bash
+cd "$(dirname "$0")/.." || exit 111
+
+kill $(< ./.pidfile) || {
+  echo "Problem killing process. Remove the pidfile"
+  exit 111
+}
+
+rm ./.pidfile
