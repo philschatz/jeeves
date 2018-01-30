@@ -54,7 +54,7 @@ module.exports = (robot) => {
         sha: sha,
         state: state,
         description: description,
-        target_url: `https://github.com/${repoOwner}/${repoName}/commit/${sha}`,
+        // target_url: `https://github.com/${repoOwner}/${repoName}/commit/${sha}`,
         context: 'jeeves/deploy'
       })
     }
