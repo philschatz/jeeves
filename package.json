@@ -10,6 +10,7 @@
     "test": "jest && standard"
   },
   "dependencies": {
+    "nodemon": "^1.14.11",
     "probot": "^5.0.0"
   },
   "devDependencies": {
