@@ -20,6 +20,16 @@ module.exports = (robot) => {
   // Plugins that we use
   robot.log('Yay, the app was loaded!')
 
+  // Add webpage that shows current build info (like checked out commit)
+  const botInfo = {
+    git_sha: execSync(`git rev-parse HEAD`, {cwd: __dirname}).toString().substring(0, 8)
+  }
+  robot.router.get('/jeeves', async (req, res) => {
+    // ensure stats are loaded
+    res.json(botInfo)
+  })
+
+  // re-deploy on push
   robot.on('push', async ({payload, github}) => {
     // Check if the directory is checked out on this machine so we can re-deploy it
 
@@ -53,7 +63,7 @@ module.exports = (robot) => {
       robot.log(`Executing "${command}"`)
       const args = {
         cwd: repoRoot,
-        stdio: [ null, process.stdout, process.stderr ]
+        stdio: [null, process.stdout, process.stderr]
       }
       execSync(command, args)
     }
