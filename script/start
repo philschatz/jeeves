@@ -1,5 +1,5 @@
 #!/bin/bash
 cd "$(dirname "$0")/.." || exit 111
 
-"$(npm bin)/probot" run ./index.js 2>&1 >> ./.output.log &
+"$(npm bin)/probot" run ./index.js >> ./.output.log 2>&1 &
 echo "$!" > ./.pidfile

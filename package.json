@@ -7,7 +7,7 @@
   "repository": "https://github.com/philschatz/jeeves.git",
   "scripts": {
     "start": "probot run ./index.js",
-    "test": "jest && standard"
+    "test": "jest && standard --fix"
   },
   "dependencies": {
     "nodemon": "^1.14.11",

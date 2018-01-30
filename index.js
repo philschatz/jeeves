@@ -12,7 +12,6 @@ if (!fs.existsSync(REPOS_ROOT)) {
   throw new Error('Environment variable REPOS_ROOT does not point to an existing directory. Make sure it is set in the .env file')
 }
 
-
 const STATUS_PENDING = 'pending'
 const STATUS_SUCCESS = 'success'
 const STATUS_ERROR = 'error'
@@ -31,41 +30,38 @@ module.exports = (robot) => {
     const masterBranchName = payload.repository.default_branch
     const repoOwner = payload.repository.owner.name
     const repoName = payload.repository.name
+    const sha = payload.head_commit.id
+    const repoRoot = `${REPOS_ROOT}/${repoOwner}/${repoName}`
+
+    async function updateStatus (state, description) {
+      // GitHub requires that descripitons be <= 140 characters
+      if (description && description.length > 140) {
+        description = description.substring(0, 140)
+      }
+      return github.repos.createStatus({
+        owner: repoOwner,
+        repo: repoName,
+        sha: sha,
+        state: state,
+        description: description,
+        target_url: `https://github.com/${repoOwner}/${repoName}/commit/${sha}`,
+        context: 'jeeves/deploy'
+      })
+    }
+
+    function execCommand (command) {
+      robot.log(`Executing "${command}"`)
+      const args = {
+        cwd: repoRoot,
+        stdio: [ null, process.stdout, process.stderr ]
+      }
+      execSync(command, args)
+    }
 
     if (fs.existsSync(path.join(REPOS_ROOT, repoOwner, repoName))) {
-
-      const sha = payload.head_commit.id
-      const tree = payload.head_commit.tree_id
-      const repoRoot = `${REPOS_ROOT}/${repoOwner}/${repoName}`
-
-      async function updateStatus(state, description) {
-        // GitHub requires that descripitons be <= 140 characters
-        if (description && description.length > 140) {
-          description = description.substring(0, 140)
-        }
-        return await github.repos.createStatus({
-          owner: repoOwner,
-          repo: repoName,
-          sha: sha,
-          state: state,
-          description: description,
-          target_url: `https://github.com/${repoOwner}/${repoName}/commit/${sha}`,
-          context: 'jeeves/deploy'
-        })
-      }
-
-      function execCommand(command) {
-        robot.log(`Executing "${command}"`)
-        const args = {
-          cwd: repoRoot,
-          stdio: [ null, process.stdout, process.stderr]
-        }
-        execSync(command, args)
-      }
-
       try {
         // deploy locally (we are using nodemon to start this whole thing off so it will reboot)
-        updateStatus(STATUS_PENDING, 'Checking out code')
+        await updateStatus(STATUS_PENDING, 'Checking out code')
         // execCommand(`git fetch origin "${sha}"`)
         // execCommand(`git checkout FETCH_HEAD`)
         execCommand(`git checkout ${masterBranchName}`)
@@ -73,19 +69,16 @@ module.exports = (robot) => {
         execCommand(`git checkout "${sha}"`)
 
         // Install any packages
-        updateStatus(STATUS_PENDING, 'Installing Packages')
+        await updateStatus(STATUS_PENDING, 'Installing Packages')
         execCommand(`./script/setup`)
 
-        updateStatus(STATUS_PENDING, 'Restarting')
+        await updateStatus(STATUS_PENDING, 'Restarting')
         execCommand(`./script/restart`)
 
-        updateStatus(STATUS_SUCCESS, 'Deployed')
+        await updateStatus(STATUS_SUCCESS, 'Deployed')
       } catch (err) {
-        updateStatus(STATUS_ERROR, err.message)
+        await updateStatus(STATUS_ERROR, err.message)
       }
     }
   })
-
-
-
 }
