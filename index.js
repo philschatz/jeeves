@@ -16,14 +16,19 @@ const STATUS_PENDING = 'pending'
 const STATUS_SUCCESS = 'success'
 const STATUS_ERROR = 'error'
 
-module.exports = (robot) => {
+module.exports = async (robot) => {
   // Plugins that we use
+  require('./src/probot-redis-brain')(robot)
+
   robot.log('Yay, the app was loaded!')
 
   // Add webpage that shows current build info (like checked out commit)
   const botInfo = {
     git_sha: execSync(`git rev-parse HEAD`, {cwd: __dirname}).toString().substring(0, 8)
   }
+  await robot.brain.jsonSet('jeeves:sha', botInfo.git_sha)
+  robot.log(`Running using sha ${await robot.brain.jsonGet('jeeves:sha')}`)
+
   robot.router.get('/jeeves', async (req, res) => {
     // ensure stats are loaded
     res.json(botInfo)

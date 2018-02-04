@@ -2,4 +2,8 @@
 
 echo "Note: Prefix with LOG_LEVEL=trace for more debugging"
 
+if [[ $(which brew) ]]; then
+  brew services start redis
+fi
+
 "$(npm bin)/nodemon" --exec "npm start" || exit 111

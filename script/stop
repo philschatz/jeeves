@@ -6,4 +6,8 @@ kill "$(< ./.pidfile)" || {
   exit 111
 }
 
+if [[ $(which brew) ]]; then
+  brew services stop redis
+fi
+
 rm ./.pidfile

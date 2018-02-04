@@ -1,5 +1,9 @@
 #!/bin/bash
 cd "$(dirname "$0")/.." || exit 111
 
+if [[ $(which brew) ]]; then
+  brew services start redis
+fi
+
 "$(npm bin)/probot" run ./index.js >> ./.output.log 2>&1 &
 echo "$!" > ./.pidfile
